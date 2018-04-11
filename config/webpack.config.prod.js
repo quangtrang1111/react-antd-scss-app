@@ -12,6 +12,9 @@ const eslintFormatter = require("react-dev-utils/eslintFormatter");
 const ModuleScopePlugin = require("react-dev-utils/ModuleScopePlugin");
 const paths = require("./paths");
 const getClientEnvironment = require("./env");
+const { injectBabelPlugin } = require("react-app-rewired");
+const rewireLess = require("react-app-rewire-less");
+const themeVars = require("../theme.js");
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
@@ -49,7 +52,7 @@ const extractTextPluginOptions = shouldUseRelativeAssetPaths
 // This is the production configuration.
 // It compiles slowly and is focused on producing a fast and minimal bundle.
 // The development configuration is different and lives in a separate file.
-module.exports = {
+let config = {
   // Don't attempt to continue if there are any errors.
   bail: true,
   // We generate sourcemaps in production. This is slow but gives good results.
@@ -342,3 +345,11 @@ module.exports = {
     child_process: "empty"
   }
 };
+
+config = injectBabelPlugin(
+  ["import", { libraryName: "antd", style: true }],
+  config
+);
+config = rewireLess.withLoaderOptions(themeVars)(config, env);
+
+module.exports = config;

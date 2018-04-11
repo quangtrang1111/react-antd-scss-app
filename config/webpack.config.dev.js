@@ -11,6 +11,10 @@ const eslintFormatter = require("react-dev-utils/eslintFormatter");
 const ModuleScopePlugin = require("react-dev-utils/ModuleScopePlugin");
 const getClientEnvironment = require("./env");
 const paths = require("./paths");
+const { injectBabelPlugin } = require("react-app-rewired");
+const rewireLess = require("react-app-rewire-less");
+const rewireSass = require("react-app-rewire-sass");
+const themeVars = require("../theme.js");
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // In development, we always serve from the root. This makes config easier.
@@ -25,7 +29,7 @@ const env = getClientEnvironment(publicUrl);
 // This is the development configuration.
 // It is focused on developer experience and fast rebuilds.
 // The production configuration is different and lives in a separate file.
-module.exports = {
+let config = {
   // You may want 'eval' instead if you prefer to see the compiled output in DevTools.
   // See the discussion in https://github.com/facebookincubator/create-react-app/issues/343.
   devtool: "cheap-module-source-map",
@@ -277,3 +281,11 @@ module.exports = {
     hints: false
   }
 };
+
+config = injectBabelPlugin(
+  ["import", { libraryName: "antd", style: true }],
+  config
+);
+config = rewireLess.withLoaderOptions(themeVars)(config, env);
+
+module.exports = config;
